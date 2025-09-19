@@ -32,7 +32,8 @@ app.use(cors());
 app.use(express.json({ limit: "200kb" }));
 app.use(morgan("tiny"));
 
-app.get("/health", (_, res) => res.json({ ok: true }));
+app.get("/", (_, res) => res.json({ ok: true, service: "animday-api" }));
+
 
 app.post("/translate", async (req, res) => {
   try {
