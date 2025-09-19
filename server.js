@@ -21,7 +21,6 @@ function cacheGet(key) {
 function cacheSet(key, value) {
   cache.set(key, { value, t: Date.now() });
   if (cache.size > MAX_ITEMS) {
-    // retire le plus ancien
     const first = cache.keys().next().value;
     cache.delete(first);
   }
@@ -33,7 +32,7 @@ app.use(express.json({ limit: "200kb" }));
 app.use(morgan("tiny"));
 
 app.get("/", (_, res) => res.json({ ok: true, service: "animday-api" }));
-
+app.get("/health", (_, res) => res.json({ ok: true })); // ← AJOUT
 
 app.post("/translate", async (req, res) => {
   try {
@@ -45,14 +44,7 @@ app.post("/translate", async (req, res) => {
     const cached = cacheGet(key);
     if (cached) return res.json({ translatedText: cached, cached: true });
 
-    // Appel LibreTranslate
-    const body = {
-      q,
-      source,
-      target,
-      format: "text",
-      api_key: LT_API_KEY || undefined,
-    };
+    const body = { q, source, target, format: "text", api_key: LT_API_KEY || undefined };
 
     const r = await fetch(LT_URL, {
       method: "POST",
